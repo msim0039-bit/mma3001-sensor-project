@@ -1,0 +1,35 @@
+Run time (UTC): 2026-10-12T03:06:05.312081+00:00
+Git commit: 5336c76d82e6c604bc9d35b6960ecf1d7c8812f2
+Python: 3.13.16
+NumPy: 2.1.3
+SciPy: 1.16.3
+Command: python -m unittest discover -s tests -v
+
+test_prediction_does_not_refit_scaling (test_models.TestCO2Regression.test_prediction_does_not_refit_scaling)
+A prediction must not depend on other prediction rows. ... ok
+test_predicts_known_equation_on_new_rows (test_models.TestCO2Regression.test_predicts_known_equation_on_new_rows)
+New feature combinations must match hand-calculated CO2. ... ok
+test_rejects_constant_feature (test_models.TestCO2Regression.test_rejects_constant_feature)
+A feature with zero training variation must be rejected. ... ok
+test_rejects_invalid_prediction_features (test_models.TestCO2Regression.test_rejects_invalid_prediction_features)
+Prediction requires finite values and three columns. ... ok
+test_rejects_invalid_training_data (test_models.TestCO2Regression.test_rejects_invalid_training_data)
+Training requires matching, finite targets and valid features. ... ok
+test_rejects_rank_deficient_training (test_models.TestCO2Regression.test_rejects_rank_deficient_training)
+Dependent features cannot identify all regression slopes. ... ok
+test_rejects_invalid_observations (test_models.TestCubicSpline.test_rejects_invalid_observations)
+Invalid shapes, ordering, and values must raise ValueError. ... ok
+test_rejects_invalid_queries (test_models.TestCubicSpline.test_rejects_invalid_queries)
+Queries must be finite, one-dimensional, and in range. ... ok
+test_reproduces_observed_values (test_models.TestCubicSpline.test_reproduces_observed_values)
+The spline must pass through its supplied observations. ... ok
+test_straight_line_at_uneven_times (test_models.TestCubicSpline.test_straight_line_at_uneven_times)
+A natural spline must reproduce a straight line. ... ok
+test_linear_recovers_known_straight_line (test_reconstruct.TestReconstructGap.test_linear_recovers_known_straight_line) ... ok
+test_previous_uses_last_observed_value (test_reconstruct.TestReconstructGap.test_previous_uses_last_observed_value) ... ok
+test_rejects_time_outside_gap (test_reconstruct.TestReconstructGap.test_rejects_time_outside_gap) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.027s
+
+OK
