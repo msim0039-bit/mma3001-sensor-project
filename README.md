@@ -247,7 +247,7 @@ Regenerate the documentation after relevant source changes to keep it consistent
 
 ## Limitations and current status
 
-- The comparison currently concerns one sensor and one development segment.
+- The comparison concerns one sensor, evaluated on a development segment and a later-period robustness segment. Results may not generalise to other sensors or buildings.
 - Previously examined data must not be described as an untouched test set.
 - Interpolation requires observations after the gap and therefore does not represent immediate real-time prediction.
 - Regression requires temperature, humidity and pressure during the CO₂ outage.
@@ -256,7 +256,7 @@ Regenerate the documentation after relevant source changes to keep it consistent
 - Agreement with hidden sensor measurements does not establish agreement with the true physical CO₂ concentration.
 - Engineering acceptance criteria and broader validation remain to be addressed in the final analysis and report.
 
-The current four-method development comparison, numerical verification tests, reproduction evidence and HTML source documentation are available. Further validation and the final engineering report remain in progress.
+The method comparison, numerical verification tests, reproduction evidence, runtime measurements, spline sensitivity analysis, later-period robustness analysis and HTML source documentation are available. Final notebook checks, engineering interpretation and the written report remain in progress.
 
 ## AI assistance
 
