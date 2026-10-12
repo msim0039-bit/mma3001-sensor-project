@@ -80,9 +80,12 @@ Full results: [co2_method_comparison.csv](co2_method_comparison.csv).
 The figure shows the first eligible 18-reading gap, selected by chronological order rather than reconstruction error. It illustrates individual method behaviour; the aggregated errors above provide the broader comparison.
 
 `co2_gap_mae.png` and `src/evaluate.py` retain the earlier two-method experiment. Use `src/compare.py` and `co2_method_comparison.csv` for the current four-method comparison.
+
 ## Runtime comparison
 
 The first eligible 18-reading development gap was used to compare the implemented functions. Timings exclude data loading and regression training; spline timing includes spline construction.
+
+The timings below describe the original benchmark session preserved in `co2_runtime_comparison.csv` and `runtime_details.txt`. The notebook's later fresh-session run produced different timings. Runtime varies between Colab sessions, so exact timing values are not expected to reproduce; the saved benchmark and notebook rerun are separate records.
 
 | Method | Median time per reconstruction call (ms) |
 | --- | --- |
@@ -224,6 +227,8 @@ See [TEST_REPORT.md](TEST_REPORT.md) and [test_results.txt](test_results.txt) fo
 A separate real-data reproduction check ran `src/compare.py` and compared its CSV with the saved notebook comparison. Method identifiers matched, and gap counts, errors and median boundary intervals matched with absolute tolerance `1e-6` and relative tolerance zero. See [reproduction_results.txt](reproduction_results.txt).
 
 These checks demonstrate tested behaviour and consistency between implementations. They do not constitute an untouched final accuracy validation or exhaustive testing of all possible inputs.
+
+After the source-documentation updates, a fresh clone at commit `47716c61643c558dbe519261ab3a073377c2366c` passed syntax compilation, all 13 repository unit tests, and the executable documentation examples in `reconstruct.py` and `models.py`. The commands and output are saved in the notebook, and the rerun is documented in `TEST_REPORT.md`. HTML documentation was then regenerated from that checked source.
 
 ## HTML source documentation
 
