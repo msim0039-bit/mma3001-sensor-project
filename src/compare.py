@@ -1,14 +1,22 @@
-"""Reproduce the four-method development comparison for CO2 gaps.
+"""Reproduce the four-method development comparison for CO₂ gaps.
 
-Usage:
+Run from the repository root:
     python src/compare.py path/to/environment.zip
 
-Inputs: environmental sensor ZIP containing one CSV; sensor ID.
-Output: comparison table and co2_method_comparison.csv.
+Optional arguments:
+    --sensor-id 6012002000869
+    --context-points 4
+    --output co2_comparison_reproduced.csv
+
+Input: an environmental sensor ZIP containing exactly one CSV.
+Outputs: a printed comparison table and a CSV of aggregate error metrics.
+The chosen output file is replaced if it already exists.
 
 Regression trains on the first 50% of chronological observations.
 Artificial gaps are evaluated in the following 25%. This is a
-development comparison, not an untouched final validation set.
+development comparison used for method selection, not an untouched
+final validation set. The notebook contains separate runtime,
+sensitivity and later-period robustness experiments.
 """
 
 import argparse
@@ -37,16 +45,64 @@ METHODS = ["previous", "linear", "cubic_spline", "regression"]
 
 
 def load_sensor_table(zip_path, sensor_id):
-    """Load and align four variables by exact Unix timestamp.
+    """Load and align environmental measurements by exact timestamp.
 
-    Returns a sorted DataFrame indexed by timestamp in seconds.
-    Columns contain CO2 (ppm), temperature (degrees Celsius),
-    humidity (percent), and pressure (mb).
+    Parameters
+    ----------
+    zip_path : str or pathlib.Path
+        Environmental sensor ZIP containing exactly one CSV member.
+        The CSV must use UTF-8, optionally with a byte-order mark,
+        and contain "sensorid" and "jsondata" columns.
+        Each selected JSON record must contain measurement entries
+        with variable metadata and "time"/"value" pairs.
+    sensor_id : str
+        Exact sensor identifier to select from the CSV.
 
-    Identical repeated measurements are collapsed. Conflicting values,
-    invalid measurements, absent variables, or incomplete alignment
-    raise ValueError rather than being silently filled or discarded.
-    The archive must contain exactly one CSV.
+    Returns
+    -------
+    pandas.DataFrame
+        Table sorted by ascending Unix timestamp in seconds, with index
+        name "timestamp_seconds". Columns are "Carbon dioxide" (ppm),
+        "Temperature" (degrees Celsius), "Humidity" (percent), and
+        "Pressure" (mb). Every row contains all four measurements.
+
+    Raises
+    ------
+    ValueError
+        If the archive does not contain exactly one CSV, required
+        columns are absent, selected timestamp/value entries are
+        invalid or nonfinite, a required variable has no measurements,
+        repeated timestamps contain conflicting values, or the four
+        variables are not completely aligned.
+    OSError
+        If the archive cannot be opened or read.
+    zipfile.BadZipFile
+        If the supplied file is not a valid ZIP archive.
+    json.JSONDecodeError
+        If a selected row contains malformed JSON.
+    TypeError
+        If parsed JSON structures are incompatible with the expected
+        iterable measurement structure.
+    AttributeError
+        If measurement entries lack the expected mapping interface.
+
+    Notes
+    -----
+    Identical repeated timestamp/value pairs are collapsed. Different
+    values at one timestamp cause rejection rather than arbitrary
+    selection. Exact timestamp alignment is required; missing values
+    are not filled, interpolated or silently discarded.
+
+    Variables outside the four selected names and rows belonging to
+    other sensors are ignored. Values are converted to floating-point
+    numbers. Units are assumed from the Dataset 2 variable definitions;
+    unit metadata and physical measurement ranges are not validated.
+
+    Examples
+    --------
+    >>> table = load_sensor_table(
+    ...     "environment.zip", "6012002000869"
+    ... )  # doctest: +SKIP
     """
     readings = {name: defaultdict(set) for name in VARIABLES}
 
@@ -90,6 +146,9 @@ def load_sensor_table(zip_path, sensor_id):
                             raise ValueError(
                                 f"Nonfinite measurement for {name}."
                             )
+
+                        # Collapse identical repeats while retaining
+                        # conflicting values for explicit rejection.
                         readings[name][timestamp].add(value)
 
     clean = {}
@@ -105,6 +164,8 @@ def load_sensor_table(zip_path, sensor_id):
             for timestamp, values in measurements.items()
         }
 
+    # Building columns on their timestamp union exposes any missing
+    # alignment as NaN, which is rejected rather than silently filled.
     table = pd.DataFrame(clean).sort_index()
     table.index.name = "timestamp_seconds"
 
@@ -115,29 +176,86 @@ def load_sensor_table(zip_path, sensor_id):
 
 
 def compare_methods(table, context_points=4):
-    """Evaluate independently simulated gaps of 6, 18 and 36 readings.
+    """Compare four methods on independently simulated CO₂ gaps.
 
     Parameters
     ----------
     table : pandas.DataFrame
-        Complete, chronological table returned by load_sensor_table.
-    context_points : int
-        Number of observed points on each side supplied to the spline.
-        Defaults to four, matching the notebook comparison.
+        Complete table in the format returned by load_sensor_table().
+        Its index contains finite, strictly increasing Unix timestamps
+        in seconds. Required columns contain finite CO₂ (ppm),
+        temperature (degrees Celsius), humidity (percent), and pressure
+        (mb). Sufficient rows and training variation are required.
+    context_points : int, optional
+        Positive number of observed readings on each side supplied to
+        the natural cubic spline. Defaults to four. This setting also
+        determines candidate-window eligibility and spacing.
 
     Returns
     -------
     pandas.DataFrame
-        Gap counts, MAE and RMSE in ppm, and median elapsed time
-        between the surrounding observations in minutes.
+        Twelve rows: four methods for each of 6, 18 and 36 hidden
+        readings. Columns contain:
+        "Hidden readings" — missing readings per simulated gap;
+        "Gaps evaluated" — accepted windows for that gap size;
+        "Method" — previous, linear, cubic_spline or regression;
+        "MAE (ppm)" — pooled mean absolute reconstruction error;
+        "RMSE (ppm)" — pooled root mean square reconstruction error;
+        "Median boundary interval (min)" — median elapsed time between
+        the observed readings immediately surrounding each gap.
+        This function returns results without writing a file.
+
+    Raises
+    ------
+    ValueError
+        If context_points is invalid, data are nonnumeric or nonfinite,
+        timestamps are not strictly increasing, regression training is
+        unsuitable, predictions are nonfinite, or a gap size has no
+        eligible windows.
+    KeyError
+        If a required measurement column is missing.
+    TypeError
+        If supplied objects do not support the required conversions.
+    numpy.linalg.LinAlgError
+        If the regression least-squares solver fails to converge.
+    OverflowError
+        If a timestamp is outside the supported datetime range.
+    OSError
+        If the platform cannot convert a timestamp.
 
     Notes
     -----
-    All methods use the same hidden targets. Hidden CO2 readings are
-    excluded from reconstruction inputs. Regression assumes that
-    temperature, humidity and pressure remain available during gaps.
-    Windows with an adjacent interval above 30 minutes are skipped.
-    Each gap is treated as a separate missing-data event.
+    Regression is fitted using only the first 50% of observations.
+    Candidate gaps and their spline context lie within the following
+    25%. The final 25% is not evaluated by this function.
+
+    Candidate starts advance by gap_size + 2 * context_points.
+    Hidden windows do not overlap within a gap size. Each window is
+    treated as a separate missing-data event using the original observed
+    context. Windows containing an adjacent interval above 30 minutes
+    are skipped. Gap sizes count readings, not fixed durations.
+
+    All four methods predict the same hidden targets within each gap
+    size. Hidden CO₂ values enter scoring only, not reconstruction or
+    training. Regression assumes temperature, humidity and pressure
+    remain available during the CO₂ gap. Interpolation requires later
+    observed CO₂, making this an offline reconstruction comparison.
+
+    MAE and RMSE pool errors across all hidden readings for each method
+    and gap size. These metrics assess agreement with recorded sensor
+    values, not independently verified physical concentrations.
+    Development results inform method selection.
+
+    Changing context_points changes both spline context and evaluated
+    windows. Use the notebook's fixed-window sensitivity experiment to
+    isolate the effect of context size.
+
+    Examples
+    --------
+    >>> table = load_sensor_table(
+    ...     "environment.zip", "6012002000869"
+    ... )  # doctest: +SKIP
+    >>> results = compare_methods(table)  # doctest: +SKIP
     """
     if not isinstance(context_points, int) or context_points < 1:
         raise ValueError("context_points must be a positive integer.")
@@ -156,6 +274,8 @@ def compare_methods(table, context_points=4):
     training_end = int(0.50 * len(table))
     comparison_end = int(0.75 * len(table))
 
+    # Fit once using the earlier training segment; hidden evaluation
+    # targets cannot influence the regression coefficients or scaling.
     model = fit_regression(
         features[:training_end], co2[:training_end]
     )
@@ -175,9 +295,14 @@ def compare_methods(table, context_points=4):
             window_times = times[
                 start - context_points:stop + context_points
             ]
+
+            # Avoid combining artificial missing readings with an
+            # existing long interruption in the measurement sequence.
             if np.any(np.diff(window_times) > 1800):
                 continue
 
+            # Only observed readings outside the hidden interval
+            # supply the spline context.
             context_indices = np.concatenate([
                 np.arange(start - context_points, start),
                 np.arange(stop, stop + context_points),
@@ -216,6 +341,7 @@ def compare_methods(table, context_points=4):
                 features[start:stop]
             )
 
+            # Hidden CO₂ enters scoring only, after predictions exist.
             for method, predicted in predictions.items():
                 predicted = np.asarray(predicted, dtype=float)
                 if not np.isfinite(predicted).all():
@@ -247,16 +373,60 @@ def compare_methods(table, context_points=4):
 
 
 def main():
-    """Read CLI arguments, run the comparison, and save its CSV."""
+    """Run the command-line comparison and save aggregate results.
+
+    Parameters
+    ----------
+    None
+        Reads command-line arguments: required zip_path, optional
+        --sensor-id, --context-points, and --output.
+
+    Returns
+    -------
+    None
+        Writes the comparison CSV without a row index and prints the
+        sensor ID, aligned observation count, comparison segment,
+        rounded result table and output path.
+
+    Raises
+    ------
+    SystemExit
+        If command-line arguments are invalid or help is requested.
+    OSError
+        If input files cannot be read, output directories cannot be
+        created, or the CSV cannot be written.
+    ValueError
+        If loading, alignment, training or comparison validation fails.
+
+    Notes
+    -----
+    Defaults are sensor "6012002000869", four spline observations per
+    side, and output "co2_method_comparison.csv". Parent directories are
+    created as needed. An existing output file is replaced.
+
+    Exceptions from load_sensor_table() and compare_methods() propagate
+    to the caller. No plots, runtime measurements or later-period
+    robustness results are generated by this command.
+
+    Examples
+    --------
+    From the repository root, run:
+        python src/compare.py path/to/environment.zip
+    To preserve the existing comparison CSV, specify another output:
+        python src/compare.py path/to/environment.zip --output new.csv
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("zip_path", help="Environmental sensor ZIP")
     parser.add_argument("--sensor-id", default="6012002000869")
     parser.add_argument(
-        "--output", default="co2_method_comparison.csv",
+        "--output",
+        default="co2_method_comparison.csv",
         help="Output CSV path; an existing file will be replaced.",
     )
     parser.add_argument(
-        "--context-points", type=int, default=4,
+        "--context-points",
+        type=int,
+        default=4,
         help="Observed points per side supplied to the spline.",
     )
     args = parser.parse_args()
