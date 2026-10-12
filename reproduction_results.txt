@@ -1,0 +1,26 @@
+Run time (UTC): 2026-10-12T03:18:02.199279+00:00
+Git commit: 0e1e14bfa714ca280af40102c291a6b1649a0edf
+Script: src/compare.py
+Sensor: 6012002000869
+Comparison: chronological 50% to 75% development segment
+
+Sensor: 6012002000869
+Aligned observations: 13800
+Development comparison: chronological 50% to 75% segment
+ Hidden readings  Gaps evaluated       Method  MAE (ppm)  RMSE (ppm)  Median boundary interval (min)
+               6             246     previous      13.05       18.16                           79.98
+               6             246       linear       9.81       12.82                           79.98
+               6             246 cubic_spline      18.49       23.61                           79.98
+               6             246   regression      35.19       45.93                           79.98
+              18             132     previous      17.04       23.49                          209.97
+              18             132       linear      11.62       15.22                          209.97
+              18             132 cubic_spline      39.31       52.10                          209.97
+              18             132   regression      35.47       46.16                          209.97
+              36              78     previous      30.75       41.68                          400.00
+              36              78       linear      16.60       21.88                          400.00
+              36              78 cubic_spline      75.38      102.62                          400.00
+              36              78   regression      35.62       46.34                          400.00
+
+Saved: /content/co2_comparison_reproduced.csv
+
+PASS: source-script results match the saved notebook comparison with absolute tolerance 1e-6 and relative tolerance 0.
