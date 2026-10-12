@@ -1,0 +1,5 @@
+Operation,Hidden readings,Median runtime per call (ms)
+previous,18,0.008001179999155283
+linear,18,0.028145490000497375
+cubic_spline,18,0.4795584899966343
+regression,18,0.02913638999871182

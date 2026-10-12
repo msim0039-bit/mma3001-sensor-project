@@ -1,0 +1,24 @@
+Recorded at (UTC): 2026-10-12T03:36:57.458418+00:00
+Source commit: 0e1e14bfa714ca280af40102c291a6b1649a0edf
+Python: 3.13.16
+NumPy: 2.1.3
+SciPy: 1.16.3
+Platform: Linux-6.6.122+-x86_64-with-glibc2.39
+Gap start index: 6904
+Hidden readings: 18
+Selection: first eligible 18-reading development gap
+Spline context: four observed readings on each side
+Timing: perf_counter; one warm-up; median of seven batch averages
+Reconstruction: 100 calls per batch; excludes loading and training
+Regression training: 10 calls per batch
+Training rows: 6900
+Median regression training time (ms): 0.932163100
+
+   Operation  Hidden readings  Median runtime per call (ms)
+    previous               18                      0.008001
+      linear               18                      0.028145
+cubic_spline               18                      0.479558
+  regression               18                      0.029136
+
+Timings describe these implementations in this Colab session.
+They are not a general hardware-independent performance ranking.
