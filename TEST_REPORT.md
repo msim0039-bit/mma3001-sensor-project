@@ -19,6 +19,29 @@ Verification checks whether the functions behave as intended. Accuracy when reco
 - Reported test execution time: 0.027 seconds
 
 Full output, including the run timestamp and individual test results, is preserved in [test_results.txt](test_results.txt). The recorded execution time excludes cloning the repository and starting the Python process; it is not a benchmark of reconstruction performance.
+## Verification after source-documentation updates
+
+A fresh GitHub clone was checked in Google Colab on 12 October 2026 after expanding the source comments and docstrings.
+
+- Tested source commit: `47716c61643c558dbe519261ab3a073377c2366c`
+- Python syntax compilation: passed for all source modules.
+- Repository unit tests: all 13 passed, with no failures or errors.
+- Reported unit-test execution time: 0.006 seconds.
+- Executable documentation examples in `reconstruct.py` and `models.py`: passed.
+
+The commands were:
+
+    python -m compileall -q src
+    python -m unittest discover -s tests -v
+    python -m doctest src/reconstruct.py src/models.py
+
+Saved commands and output are available in
+[sensor_gap_exploration.ipynb](sensor_gap_exploration.ipynb).
+
+This rerun checks the updated source and documentation examples.
+It does not extend the unit-test coverage to the data loaders or
+establish real-data reconstruction accuracy. The execution time is
+not a reconstruction-performance benchmark.
 
 ## Test coverage
 
