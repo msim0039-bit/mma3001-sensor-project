@@ -80,6 +80,56 @@ Full results: [co2_method_comparison.csv](co2_method_comparison.csv).
 The figure shows the first eligible 18-reading gap, selected by chronological order rather than reconstruction error. It illustrates individual method behaviour; the aggregated errors above provide the broader comparison.
 
 `co2_gap_mae.png` and `src/evaluate.py` retain the earlier two-method experiment. Use `src/compare.py` and `co2_method_comparison.csv` for the current four-method comparison.
+## Runtime comparison
+
+The first eligible 18-reading development gap was used to compare the implemented functions. Timings exclude data loading and regression training; spline timing includes spline construction.
+
+| Method | Median time per reconstruction call (ms) |
+| --- | --- |
+| Previous value | 0.008001 |
+| Linear interpolation | 0.028145 |
+| Natural cubic spline: four observations per side | 0.479558 |
+| Regression prediction | 0.029136 |
+
+Regression training on 6,900 observations took a median of 0.932163 ms, measured separately.
+
+Each operation received a warm-up. Reconstruction timings are the median of seven batch averages, with 100 calls per batch. Training used 10 calls per batch.
+
+These results describe one gap and one Colab session. Linear and regression prediction timings are close; they do not establish a meaningful speed difference. All measured reconstruction times were below 1 ms per call.
+
+Evidence: [co2_runtime_comparison.csv](co2_runtime_comparison.csv) and [runtime_details.txt](runtime_details.txt). Benchmark code is in the notebook.
+
+## Spline context sensitivity
+
+Natural splines using two, four and eight observed readings per side were compared on identical hidden gaps within each gap size. Linear interpolation was evaluated on those same gaps.
+
+| Hidden readings | Gaps evaluated | Linear MAE (ppm) | Spline: 2 per side | Spline: 4 per side | Spline: 8 per side |
+| --- | --- | --- | --- | --- | --- |
+| 6 | 156 | 9.12 | 15.19 | 18.42 | 18.46 |
+| 18 | 101 | 12.74 | 31.75 | 41.46 | 41.59 |
+| 36 | 66 | 17.40 | 48.06 | 68.32 | 68.73 |
+
+Two observations per side gave the lowest spline errors among the tested settings. Adding more context did not improve accuracy in these experiments. Linear interpolation retained lower MAE and RMSE at every gap size.
+
+These windows differ from the original development comparison because eligibility and spacing allow eight observations per side. Compare settings within this experiment rather than interpreting differences from the earlier table as a controlled improvement.
+
+Full MAE and RMSE results: [co2_spline_sensitivity.csv](co2_spline_sensitivity.csv). Experiment code is in the notebook.
+
+## Later-period temporal robustness
+
+The same sensor's chronological 75%–100% segment was evaluated with regression still trained only on the first 50%. The original methods and the two-observation spline setting were compared on identical gaps.
+
+| Hidden readings | Gaps evaluated | Previous MAE (ppm) | Linear | Spline: 4 per side | Spline: 2 per side | Regression |
+| --- | --- | --- | --- | --- | --- | --- |
+| 6 | 246 | 10.17 | 8.32 | 15.99 | 13.32 | 23.73 |
+| 18 | 132 | 13.94 | 9.47 | 36.13 | 26.52 | 23.69 |
+| 36 | 78 | 15.93 | 11.69 | 63.86 | 48.22 | 23.28 |
+
+Linear interpolation again produced the lowest MAE and RMSE at all three gap sizes. The two-observation spline improved on the four-observation spline but remained less accurate than linear interpolation.
+
+This strengthens the method-selection evidence across two periods of this sensor. The later data had previously been examined, so this is a temporal robustness check, not an untouched final test set. It does not establish generalisation to other sensors.
+
+Full results: [co2_temporal_robustness.csv](co2_temporal_robustness.csv). Experiment code is in the notebook.
 
 ## Repository guide
 
