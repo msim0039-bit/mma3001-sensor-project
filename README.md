@@ -133,6 +133,42 @@ Linear interpolation again produced the lowest MAE and RMSE at all three gap siz
 This strengthens the method-selection evidence across two periods of this sensor. The later data had previously been examined, so this is a temporal robustness check, not an untouched final test set. It does not establish generalisation to other sensors.
 
 Full results: [co2_temporal_robustness.csv](co2_temporal_robustness.csv). Experiment code is in the notebook.
+## Gap-position comparison across ten daily windows
+
+Ten 24-hour viewing windows were selected: five from the development period and five from the later period. Eligible days were spread chronologically using a fixed rule without selecting them by reconstruction error.
+
+Each day was evaluated with gaps near hours 6, 12 and 18 from the viewing-window start, using 6, 18 and 36 hidden readings at each position. This gives 90 separately simulated gaps and 360 method results. The 24 hours describe the viewing window, not the missing-gap duration. These positions are relative hours, not local clock times.
+
+Regression still trains only on the first chronological 50%, and the natural spline uses four observed readings per side. All four methods estimate identical hidden targets within each comparison. Some simulated gaps overlap, so the 90 comparisons should not be treated as statistically independent samples.
+
+### Results by gap position
+
+Linear interpolation had the lowest mean case MAE and mean case RMSE at every tested position and gap size.
+
+| Gap centre: hours from window start | Linear mean MAE: 6 hidden readings (ppm) | 18 readings (ppm) | 36 readings (ppm) |
+| --- | --- | --- | --- |
+| 6 | 9.12 | 10.54 | 13.86 |
+| 12 | 7.47 | 7.32 | 10.04 |
+| 18 | 10.19 | 11.68 | 13.38 |
+
+Individual winners varied. Regression had the lowest MAE in four comparisons, and the spline in one. MAE and RMSE selected different winner sets in five comparisons. The complete winner table preserves ties.
+
+These results support linear interpolation as the overall preferred method for the tested windows, but not as the winner of every individual gap. Lower errors near hour 12 describe these selected days; they do not establish that interpolation is generally more accurate at a particular local time of day.
+
+### Complete evidence and selected figures
+
+All case errors, individual predictions, MAE/RMSE winners, summaries, window timestamps and selection details are stored in [co2_position_cases/](co2_position_cases/). The notebook contains the code to regenerate all 30 figures.
+
+Four figures are included to illustrate different outcomes:
+
+- [Case 1, hour 6](co2_position_cases/case_01_hour_06.png): linear has the lowest MAE for all three gap sizes.
+- [Case 2, hour 6](co2_position_cases/case_02_hour_06.png): the MAE winner changes from previous value to regression to linear as gap size increases.
+- [Case 10, hour 12](co2_position_cases/case_10_hour_12.png): spline narrowly wins the six-reading gap by MAE, while linear wins by RMSE.
+- [Case 7, hour 18](co2_position_cases/case_07_hour_18.png): a later-position example showing substantial spline overshoot for the longer gap.
+
+These figures were selected after reviewing the results to illustrate method behaviour and exceptions. The complete tables, rather than the selected figures alone, support the conclusions.
+
+The workflow checks gap/context eligibility, exclusion of hidden indices from spline inputs, and finite predictions. MAE and RMSE were also recalculated from the saved individual predictions and matched the reported errors within absolute tolerance `1e-9`, with relative tolerance zero. These checks verify consistency; they do not establish physical sensor accuracy or generalisation to other sensors.
 
 ## Repository guide
 
