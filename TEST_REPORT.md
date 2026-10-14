@@ -19,6 +19,7 @@ Verification checks whether the functions behave as intended. Accuracy when reco
 - Reported test execution time: 0.027 seconds
 
 Full output, including the run timestamp and individual test results, is preserved in [test_results.txt](test_results.txt). The recorded execution time excludes cloning the repository and starting the Python process; it is not a benchmark of reconstruction performance.
+
 ## Verification after source-documentation updates
 
 A fresh GitHub clone was checked in Google Colab on 12 October 2026 after expanding the source comments and docstrings.
@@ -31,9 +32,11 @@ A fresh GitHub clone was checked in Google Colab on 12 October 2026 after expand
 
 The commands were:
 
-    python -m compileall -q src
-    python -m unittest discover -s tests -v
-    python -m doctest src/reconstruct.py src/models.py
+```bash
+python -m compileall -q src
+python -m unittest discover -s tests -v
+python -m doctest src/reconstruct.py src/models.py
+```
 
 Saved commands and output are available in
 [sensor_gap_exploration.ipynb](sensor_gap_exploration.ipynb).
@@ -101,10 +104,84 @@ They exercise functions in:
 
 The recorded run used a fresh clone of the repository to test the committed source files.
 
+## Additional gap-position experiment checks
+
+The additional experiment completed on 14 October 2026 compares four reconstruction methods across ten selected 24-hour viewing windows.
+
+Each window contains separately simulated gaps near hours 6, 12 and 18 from the window start. At each position, 6, 18 and 36 readings are hidden.
+
+This produces:
+
+- 10 selected viewing windows.
+- 90 simulated gap comparisons.
+- 360 method-result records.
+- 30 generated figures, of which four are included in the repository.
+
+These are real-data evaluation cases, not additional unit tests. The repository unit-test count remains 13.
+
+### Workflow checks
+
+| Check | Expected behaviour | Recorded outcome |
+| --- | --- | --- |
+| Window selection | Use a fixed chronological selection rule without selecting days by reconstruction error | Selection procedure recorded |
+| Gap eligibility | Keep each gap and its observed context inside the selected day and evaluation period | All 90 planned gaps eligible |
+| Timestamp continuity | Reject a gap/context window with an adjacent interval exceeding 30 minutes | No planned gaps excluded |
+| Hidden CO2 separation | Exclude hidden CO2 readings from reconstruction inputs, including spline context | Checked by the workflow |
+| Regression training | Fit coefficients and scaling using only the first chronological 50% | Training restricted to the earlier segment |
+| Prediction shape | Return one estimate per hidden reading | Checked for each method and gap |
+| Numerical validity | Produce finite predictions | Checked for each method and gap |
+| Output completeness | Record all four methods for each eligible gap | 90 gap comparisons and 360 method records |
+| Error calculation | Recalculate MAE and RMSE from saved individual predictions | Matched reported errors within absolute tolerance `1e-9`, with relative tolerance zero |
+
+For this experiment, MAE and RMSE are calculated as:
+
+`MAE = mean(abs(predicted - recorded))`
+
+`RMSE = sqrt(mean((predicted - recorded)^2))`
+
+The independent recalculation checks consistency between the saved predictions and reported metrics. It does not independently establish the physical accuracy of the sensor or prove that every part of the workflow is correct.
+
+### Evidence
+
+The experiment code and recorded output are in
+[sensor_gap_exploration.ipynb](sensor_gap_exploration.ipynb).
+
+The saved records are:
+
+- [Complete method errors and gap durations](co2_position_cases/position_errors.csv)
+- [Individual recorded values and predictions](co2_position_cases/hidden_predictions.csv)
+- [Summary by gap position, gap size and method](co2_position_cases/position_summary.csv)
+- [MAE and RMSE winners, including ties](co2_position_cases/position_winners.csv)
+- [Selected viewing windows](co2_position_cases/selected_windows.csv)
+- [Excluded-gap record](co2_position_cases/excluded_gaps.csv)
+- [Selection procedure, checks and limitations](co2_position_cases/selection_details.json)
+
+The excluded-gap CSV contains its column headings but no excluded cases because all 90 planned gaps passed the eligibility checks.
+
+### Reproducing the experiment
+
+Open the repository notebook in Google Colab and run its cells in order, uploading the original environmental sensor ZIP when prompted.
+
+The final gap-position comparison cell generates the result tables and all 30 figures, displays three previews, and downloads `co2_position_cases.zip`.
+
+The reconstruction functions were reused without changing their algorithms. The additional notebook workflow therefore does not require different source-module documentation solely because new cases and figures were added.
+
+### Scope and limitations
+
+These checks support the consistency of the recorded gap-position experiment. They are separate from the synthetic unit tests and do not provide exhaustive testing of the data loader or evaluation workflow.
+
+Some simulated gaps overlap, so the 90 comparisons should not be treated as statistically independent samples. The data periods had already been examined and are not an untouched final test set.
+
+Regression assumes temperature, humidity and pressure remain available during the CO2 gap. The experiment therefore represents missing CO2 measurements rather than failure of every sensor channel.
+
+Four figures were selected after reviewing the results to illustrate different outcomes. Overall conclusions should use the complete results rather than only those selected figures.
+
 ## Interpretation and limitations
 
 All 13 tests passed at the recorded commit. This supports the tested numerical behaviour and input validation of the reconstruction functions.
 
 These tests do not verify the complete CSV-loading and evaluation workflow, cover every possible input, or establish accuracy on real sensor gaps. A spline can pass its verification tests while producing substantial reconstruction errors on fluctuating measurements. Regression can recover a known synthetic relationship while performing poorly on real CO2 data.
+
+The additional gap-position checks support output completeness, separation of hidden targets from reconstruction inputs, and consistency of the saved error calculations. They do not replace the unit tests or establish generalisation to other sensors.
 
 Real-data accuracy, sensitivity to gap length, and engineering suitability must therefore be evaluated separately. The test suite should be rerun after source changes, and this report and its evidence updated when relevant.
