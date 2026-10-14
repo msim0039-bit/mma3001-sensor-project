@@ -166,6 +166,14 @@ Four figures are included to illustrate different outcomes:
 - [Case 10, hour 12](co2_position_cases/case_10_hour_12.png): spline narrowly wins the six-reading gap by MAE, while linear wins by RMSE.
 - [Case 7, hour 18](co2_position_cases/case_07_hour_18.png): a later-position example showing substantial spline overshoot for the longer gap.
 
+![Case 1, hour 6](co2_position_cases/case_01_hour_06.png)
+
+![Case 2, hour 6](co2_position_cases/case_02_hour_06.png)
+
+![Case 10, hour 12](co2_position_cases/case_10_hour_12.png)
+
+![Case 7, hour 18](co2_position_cases/case_07_hour_18.png)
+
 These figures were selected after reviewing the results to illustrate method behaviour and exceptions. The complete tables, rather than the selected figures alone, support the conclusions.
 
 The workflow checks gap/context eligibility, exclusion of hidden indices from spline inputs, and finite predictions. MAE and RMSE were also recalculated from the saved individual predictions and matched the reported errors within absolute tolerance `1e-9`, with relative tolerance zero. These checks verify consistency; they do not establish physical sensor accuracy or generalisation to other sensors.
