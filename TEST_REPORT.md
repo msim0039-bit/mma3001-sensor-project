@@ -18,7 +18,7 @@ Verification checks whether the functions behave as intended. Accuracy when reco
 - Result: **13 tests passed; no failures or errors**
 - Reported test execution time: 0.027 seconds
 
-Full output, including the run timestamp and individual test results, is preserved in [test_results.txt](test_results.txt). The recorded execution time excludes cloning the repository and starting the Python process; it is not a benchmark of reconstruction performance.
+Full output, including the run timestamp and individual test results, is preserved in [test_results.txt](evidence/test_results.txt). The recorded execution time excludes cloning the repository and starting the Python process; it is not a benchmark of reconstruction performance.
 
 ## Verification after source-documentation updates
 
@@ -148,13 +148,13 @@ The experiment code and recorded output are in
 
 The saved records are:
 
-- [Complete method errors and gap durations](co2_position_cases/position_errors.csv)
-- [Individual recorded values and predictions](co2_position_cases/hidden_predictions.csv)
-- [Summary by gap position, gap size and method](co2_position_cases/position_summary.csv)
-- [MAE and RMSE winners, including ties](co2_position_cases/position_winners.csv)
-- [Selected viewing windows](co2_position_cases/selected_windows.csv)
-- [Excluded-gap record](co2_position_cases/excluded_gaps.csv)
-- [Selection procedure, checks and limitations](co2_position_cases/selection_details.json)
+- [Complete method errors and gap durations](results/co2_position_cases/position_errors.csv)
+- [Individual recorded values and predictions](results/co2_position_cases/hidden_predictions.csv)
+- [Summary by gap position, gap size and method](results/co2_position_cases/position_summary.csv)
+- [MAE and RMSE winners, including ties](results/co2_position_cases/position_winners.csv)
+- [Selected viewing windows](results/co2_position_cases/selected_windows.csv)
+- [Excluded-gap record](results/co2_position_cases/excluded_gaps.csv)
+- [Selection procedure, checks and limitations](evidence/selection_details.json)
 
 The excluded-gap CSV contains its column headings but no excluded cases because all 90 planned gaps passed the eligibility checks.
 
@@ -163,6 +163,8 @@ The excluded-gap CSV contains its column headings but no excluded cases because 
 Open the repository notebook in Google Colab and run its cells in order, uploading the original environmental sensor ZIP when prompted.
 
 The final gap-position comparison cell generates the result tables and all 30 figures, displays three previews, and downloads `co2_position_cases.zip`.
+
+The downloaded experiment ZIP groups its generated outputs together. In this repository, the CSV records are stored under `results/co2_position_cases/`, the four selected case figures under `figures/`, and the selection record under `evidence/`.
 
 The reconstruction functions were reused without changing their algorithms. The additional notebook workflow therefore does not require different source-module documentation solely because new cases and figures were added.
 
