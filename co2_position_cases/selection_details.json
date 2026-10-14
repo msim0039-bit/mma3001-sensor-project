@@ -1,0 +1,23 @@
+{
+  "sensor": "6012002000869",
+  "selected_days": 10,
+  "viewing_window_hours": 24,
+  "gap_centres_hours_from_window_start": [
+    6,
+    12,
+    18
+  ],
+  "hidden_readings": [
+    6,
+    18,
+    36
+  ],
+  "simulated_gaps": 90,
+  "method_results": 360,
+  "spline_context_per_side": 4,
+  "regression_training": "First chronological 50% only",
+  "day_selection": "Full 24-hour bins anchored at each evaluation segment start; eligible for all hour-12 gaps; five bins spread chronologically per period, selected without using errors.",
+  "gap_selection": "First observation at or after relative hours 6, 12 and 18; hidden intervals centred around its index.",
+  "checks": "All gaps/context within the selected day; adjacent intervals no greater than 30 minutes; hidden indices excluded from spline context; finite predictions; metrics independently recalculated from point predictions with absolute tolerance 1e-9.",
+  "limitations": "Relative hours are not local clock times. Gaps are separate simulations and may overlap. Previously examined periods are not an untouched test set. Selected cases do not establish universal method-selection rules."
+}
