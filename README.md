@@ -71,21 +71,21 @@ The median elapsed intervals between observations surrounding the gaps are 79.98
 
 Linear interpolation has the lowest MAE and RMSE for all three gap sizes in this development segment. This supports it as the current preferred method for these experiments. The result does not establish that linear interpolation is best for every sensor, operating condition or missing-data pattern.
 
-Full results: [co2_method_comparison.csv](co2_method_comparison.csv).
+Full results: [co2_method_comparison.csv](results/co2_method_comparison.csv).
 
 ### Example gap
 
-![Four methods reconstructing the first eligible 18-reading development gap](co2_example_gap.png)
+![Four methods reconstructing the first eligible 18-reading development gap](figures/co2_example_gap.png)
 
 The figure shows the first eligible 18-reading gap, selected by chronological order rather than reconstruction error. It illustrates individual method behaviour; the aggregated errors above provide the broader comparison.
 
-`co2_gap_mae.png` and `src/evaluate.py` retain the earlier two-method experiment. Use `src/compare.py` and `co2_method_comparison.csv` for the current four-method comparison.
+`figures/co2_gap_mae.png` and `src/evaluate.py` retain the earlier two-method experiment. Use `src/compare.py` and `results/co2_method_comparison.csv` for the current four-method comparison.
 
 ## Runtime comparison
 
 The first eligible 18-reading development gap was used to compare the implemented functions. Timings exclude data loading and regression training; spline timing includes spline construction.
 
-The timings below describe the original benchmark session preserved in `co2_runtime_comparison.csv` and `runtime_details.txt`. The notebook's later fresh-session run produced different timings. Runtime varies between Colab sessions, so exact timing values are not expected to reproduce; the saved benchmark and notebook rerun are separate records.
+The timings below describe the original benchmark session preserved in `results/co2_runtime_comparison.csv` and `evidence/runtime_details.txt`. The notebook's later fresh-session run produced different timings. Runtime varies between Colab sessions, so exact timing values are not expected to reproduce; the saved benchmark and notebook rerun are separate records.
 
 | Method | Median time per reconstruction call (ms) |
 | --- | --- |
@@ -100,7 +100,7 @@ Each operation received a warm-up. Reconstruction timings are the median of seve
 
 These results describe one gap and one Colab session. Linear and regression prediction timings are close; they do not establish a meaningful speed difference. All measured reconstruction times were below 1 ms per call.
 
-Evidence: [co2_runtime_comparison.csv](co2_runtime_comparison.csv) and [runtime_details.txt](runtime_details.txt). Benchmark code is in the notebook.
+Evidence: [co2_runtime_comparison.csv](results/co2_runtime_comparison.csv) and [runtime_details.txt](evidence/runtime_details.txt). Benchmark code is in the notebook.
 
 ## Spline context sensitivity
 
@@ -116,7 +116,7 @@ Two observations per side gave the lowest spline errors among the tested setting
 
 These windows differ from the original development comparison because eligibility and spacing allow eight observations per side. Compare settings within this experiment rather than interpreting differences from the earlier table as a controlled improvement.
 
-Full MAE and RMSE results: [co2_spline_sensitivity.csv](co2_spline_sensitivity.csv). Experiment code is in the notebook.
+Full MAE and RMSE results: [co2_spline_sensitivity.csv](results/co2_spline_sensitivity.csv). Experiment code is in the notebook.
 
 ## Later-period temporal robustness
 
@@ -132,7 +132,7 @@ Linear interpolation again produced the lowest MAE and RMSE at all three gap siz
 
 This strengthens the method-selection evidence across two periods of this sensor. The later data had previously been examined, so this is a temporal robustness check, not an untouched final test set. It does not establish generalisation to other sensors.
 
-Full results: [co2_temporal_robustness.csv](co2_temporal_robustness.csv). Experiment code is in the notebook.
+Full results: [co2_temporal_robustness.csv](results/co2_temporal_robustness.csv). Experiment code is in the notebook.
 
 ## Gap-position comparison across ten daily windows
 
@@ -174,15 +174,17 @@ Linear's mean errors were lower near hour 12 than near hours 6 and 18 at each ga
 
 The full results include all methods and all 90 simulated gaps:
 
-- [Complete MAE, RMSE and gap-duration results](co2_position_cases/position_errors.csv)
-- [Summary by position, gap size and method](co2_position_cases/position_summary.csv)
-- [Best methods for each gap using MAE and RMSE](co2_position_cases/position_winners.csv)
-- [Individual recorded CO₂ values and predictions](co2_position_cases/hidden_predictions.csv)
-- [Dates and times of the ten selected windows](co2_position_cases/selected_windows.csv)
-- [Excluded-gap record](co2_position_cases/excluded_gaps.csv)
-- [Selection procedure, checks and limitations](co2_position_cases/selection_details.json)
+- [Complete MAE, RMSE and gap-duration results](results/co2_position_cases/position_errors.csv)
+- [Summary by position, gap size and method](results/co2_position_cases/position_summary.csv)
+- [Best methods for each gap using MAE and RMSE](results/co2_position_cases/position_winners.csv)
+- [Individual recorded CO₂ values and predictions](results/co2_position_cases/hidden_predictions.csv)
+- [Dates and times of the ten selected windows](results/co2_position_cases/selected_windows.csv)
+- [Excluded-gap record](results/co2_position_cases/excluded_gaps.csv)
+- [Selection procedure, checks and limitations](evidence/selection_details.json)
 
 To reproduce this experiment, run the notebook cells in order with the original environmental sensor ZIP. The final gap-position cell generates all result tables and 30 figures, then downloads `co2_position_cases.zip`. It displays three previews from Case 1. Four selected figures are included below.
+
+The downloaded experiment ZIP groups its generated outputs together. In this repository, the CSV records are organised under `results/co2_position_cases/`, the four selected figures under `figures/`, and the selection record under `evidence/`.
 
 ### Selected case figures
 
@@ -192,25 +194,25 @@ These figures illustrate different outcomes. They were selected after reviewing 
 
 Linear has the lowest MAE for all three gap sizes. For the 36-reading gap, the recorded concentration generally decreases, and linear follows the overall change more closely than the constant previous-value estimate.
 
-![Case 1: gaps near hour 6](co2_position_cases/case_01_hour_06.png)
+![Case 1: gaps near hour 6](figures/case_01_hour_06.png)
 
 #### Case 2: gap position near hour 6
 
 The MAE winner changes with gap size: previous value for six readings, regression for 18 readings, and linear for 36 readings. In the 18-reading gap, the recorded values fall below both boundary concentrations, which limits the straight-line estimate. Regression is closer in this particular case, while the spline introduces an upward overshoot.
 
-![Case 2: gaps near hour 6](co2_position_cases/case_02_hour_06.png)
+![Case 2: gaps near hour 6](figures/case_02_hour_06.png)
 
 #### Case 10: gap position near hour 12
 
 Spline narrowly wins the six-reading gap by MAE: 3.54 ppm compared with linear's 3.63 ppm. Linear wins that gap by RMSE. The small difference and metric disagreement do not provide strong evidence that spline should be preferred. Linear has lower errors for the longer gaps in this figure.
 
-![Case 10: gaps near hour 12](co2_position_cases/case_10_hour_12.png)
+![Case 10: gaps near hour 12](figures/case_10_hour_12.png)
 
 #### Case 7: gap position near hour 18
 
 Previous value narrowly beats linear by MAE for the six-reading gap, while linear wins the longer gaps. For the 36-reading gap, the spline produces a large downward overshoot and an MAE of 137.42 ppm, compared with 9.26 ppm for linear. This shows why a smooth curve should not automatically be treated as an accurate reconstruction.
 
-![Case 7: gaps near hour 18](co2_position_cases/case_07_hour_18.png)
+![Case 7: gaps near hour 18](figures/case_07_hour_18.png)
 
 ### Verification and limitations
 
@@ -233,13 +235,17 @@ The results support linear interpolation overall while showing exceptions for in
 | `src/evaluate.py` | Earlier two-method evaluation |
 | `tests/` | Synthetic numerical verification and invalid-input tests |
 | `docs/` | Generated HTML source documentation and search file |
+| `figures/` | Two original graphs and four selected gap-position figures |
+| `results/` | Development, runtime, spline-sensitivity and temporal-robustness CSV tables |
+| `results/co2_position_cases/` | Complete gap-position errors, summaries, winners, predictions and selection tables |
+| `evidence/` | Recorded test output, reproduction results, benchmark details and experiment-selection record |
 | `sensor_gap_exploration.ipynb` | Colab exploration and recorded checks |
 | `requirements.txt` | Recorded analysis package versions |
 | `TEST_REPORT.md` | Verification scope, results and limitations |
-| `test_results.txt` | Actual output from the 13-test run |
-| `reproduction_results.txt` | Evidence that the source comparison matches saved results |
-| `co2_method_comparison.csv` | Current development comparison results |
-| `co2_example_gap.png` | Example four-method reconstruction plot |
+| `evidence/test_results.txt` | Actual output from the 13-test run |
+| `evidence/reproduction_results.txt` | Evidence that the source comparison matches saved results |
+| `results/co2_method_comparison.csv` | Current development comparison results |
+| `figures/co2_example_gap.png` | Example four-method reconstruction plot |
 | `LICENSE` | MIT licence for repository code |
 
 ## Run locally
@@ -281,7 +287,7 @@ Run the audit and current comparison, replacing the example path with your origi
 
 ```bash
 python src/audit.py "/path/to/5EnvSensor_MayToDec2024_180kRows.zip"
-python src/compare.py "/path/to/5EnvSensor_MayToDec2024_180kRows.zip" --output co2_comparison_reproduced.csv
+python src/compare.py "/path/to/5EnvSensor_MayToDec2024_180kRows.zip" --output results/co2_comparison_reproduced.csv
 ```
 
 The comparison prints the aligned-observation count and error table, and saves a CSV in the specified location. Existing output files with the same name are replaced. It does not regenerate the example plot.
@@ -310,9 +316,9 @@ python -m unittest discover -s tests -v
 
 All 13 tests passed in the recorded run on 12 October 2026. The tests check known numerical answers, selected invalid inputs, and fixed training scaling during regression prediction.
 
-See [TEST_REPORT.md](TEST_REPORT.md) and [test_results.txt](test_results.txt) for the tested commit, environment and individual results.
+See [TEST_REPORT.md](TEST_REPORT.md) and [test_results.txt](evidence/test_results.txt) for the tested commit, environment and individual results.
 
-A separate real-data reproduction check ran `src/compare.py` and compared its CSV with the saved notebook comparison. Method identifiers matched, and gap counts, errors and median boundary intervals matched with absolute tolerance `1e-6` and relative tolerance zero. See [reproduction_results.txt](reproduction_results.txt).
+A separate real-data reproduction check ran `src/compare.py` and compared its CSV with the saved notebook comparison. Method identifiers matched, and gap counts, errors and median boundary intervals matched with absolute tolerance `1e-6` and relative tolerance zero. See [reproduction_results.txt](evidence/reproduction_results.txt).
 
 These checks demonstrate tested behaviour and consistency between implementations. They do not constitute an untouched final accuracy validation or exhaustive testing of all possible inputs.
 
@@ -353,10 +359,11 @@ The method comparison, numerical verification tests, reproduction evidence, runt
 
 ## AI assistance
 
-ChatGPT was used to assist with code drafting, test design, explanations, documentation and workflow instructions. AI-assisted code was run, checked against synthetic reference answers, and compared with saved real-data results.
+ChatGPT was used to help draft code, design tests, explain methods, write documentation and guide the project workflow. Gemini in Google Colab was used to explain code, help fix errors and suggest code for additional graphs based on requested changes.
 
-The final submission will include a fuller AI-use reflection covering contributions, checks, decisions and limitations. AI assistance does not replace responsibility for understanding and explaining the submitted work.
+AI-assisted code was run and checked using synthetic reference answers, repository tests and comparisons with saved real-data results. Graphs and error tables were reviewed to assess method behaviour and limitations.
 
+The final report will include a fuller reflection on AI contributions, verification, decisions and learning. Responsibility for understanding and explaining the submitted work remains with the student.
 ## Licence
 
 Repository code is provided under the [MIT licence](LICENSE). This licence does not grant rights to redistribute the original unit dataset.
