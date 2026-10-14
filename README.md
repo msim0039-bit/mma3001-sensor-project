@@ -159,6 +159,14 @@ These results support linear interpolation as the overall preferred method for t
 
 All case errors, individual predictions, MAE/RMSE winners, summaries, window timestamps and selection details are stored in [co2_position_cases/](co2_position_cases/). The notebook contains the code to regenerate all 30 figures.
 
+Results tables:
+
+- [Complete errors for all 90 gaps and four methods](co2_position_cases/position_errors.csv)
+- [Summary by gap position, gap size and method](co2_position_cases/position_summary.csv)
+- [Best methods for each gap using MAE and RMSE](co2_position_cases/position_winners.csv)
+- [Individual recorded values and predictions](co2_position_cases/hidden_predictions.csv)
+- [Dates and times of the ten selected windows](co2_position_cases/selected_windows.csv)
+  
 Four figures are included to illustrate different outcomes:
 
 - [Case 1, hour 6](co2_position_cases/case_01_hour_06.png): linear has the lowest MAE for all three gap sizes.
