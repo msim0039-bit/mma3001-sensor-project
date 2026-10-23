@@ -353,9 +353,9 @@ Regenerate the documentation after relevant source changes to keep it consistent
 - Artificially hidden readings may not represent all real sensor-failure patterns.
 - The spline can introduce substantial curvature and overshoot across gaps.
 - Agreement with hidden sensor measurements does not establish agreement with the true physical CO₂ concentration.
-- Engineering acceptance criteria and broader validation remain to be addressed in the final analysis and report.
+- The report discusses engineering usefulness and limitations. Application-specific acceptance criteria and validation on additional sensors remain future work.
 
-The method comparison, numerical verification tests, reproduction evidence, runtime measurements, spline sensitivity analysis, later-period robustness analysis and HTML source documentation are available. Final notebook checks, engineering interpretation and the written report remain in progress.
+The repository includes the completed method comparisons, numerical verification tests, reproduction evidence, runtime measurements, spline sensitivity analysis, later-period checks and HTML source documentation. The accompanying report explains the engineering interpretation, limitations and conclusions.
 
 ## AI assistance
 
@@ -363,7 +363,7 @@ ChatGPT was used to help draft code, design tests, explain methods, write docume
 
 AI-assisted code was run and checked using synthetic reference answers, repository tests and comparisons with saved real-data results. Graphs and error tables were reviewed to assess method behaviour and limitations.
 
-The final report will include a fuller reflection on AI contributions, verification, decisions and learning. Responsibility for understanding and explaining the submitted work remains with the student.
+The accompanying report reflects on AI contributions, verification, decisions and learning. Responsibility for understanding and explaining the submitted work remains with the student.
 ## Licence
 
 Repository code is provided under the [MIT licence](LICENSE). This licence does not grant rights to redistribute the original unit dataset.
