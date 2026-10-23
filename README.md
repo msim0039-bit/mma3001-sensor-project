@@ -24,7 +24,7 @@ The audit found 29,341 CSV rows for this sensor and 13,800 distinct CO₂ timest
 
 `src/compare.py` reads the ZIP directly, which must contain exactly one CSV with `sensorid` and `jsondata` columns. It collapses identical repeated measurements, aligns variables by exact timestamp, and sorts observations chronologically. It rejects invalid or nonfinite measurements, conflicting values, absent variables, and incomplete alignment.
 
-Obtain the original ZIP from the unit's Dataset 2 materials. Keep it outside this public repository. Occupancy data and the example data labelled “Do not use” are not used.
+The original environmental sensor archive, `5EnvSensor_MayToDec2024_180kRows.zip`, is included in the repository root for reproducibility. It was supplied through the unit's Dataset 2 materials. Occupancy data and the example data labelled “Do not use” are not used.
 
 ## Methods
 
